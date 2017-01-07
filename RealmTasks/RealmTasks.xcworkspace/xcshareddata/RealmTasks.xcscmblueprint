@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "01041D608E8C6BB12C61EC99AAF9494FEF689F0C",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "01041D608E8C6BB12C61EC99AAF9494FEF689F0C" : 9223372036854775807,
+    "8543228695DF26F61A943FCEE792A1A0BD4DBEC0" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "AD89FC84-5730-4957-A510-FE9601EB5E10",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "01041D608E8C6BB12C61EC99AAF9494FEF689F0C" : "realmtasks\/",
+    "8543228695DF26F61A943FCEE792A1A0BD4DBEC0" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "RealmTasks",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "RealmTasks\/RealmTasks.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/managam\/realmtasks.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "01041D608E8C6BB12C61EC99AAF9494FEF689F0C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/managam\/iOS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "8543228695DF26F61A943FCEE792A1A0BD4DBEC0"
+    }
+  ]
+}
