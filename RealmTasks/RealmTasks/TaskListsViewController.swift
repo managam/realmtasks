@@ -10,7 +10,7 @@ import UIKit
 import RealmSwift
 
 class TaskListsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-
+    
     var lists : Results<TaskList>!
     
     var isEditingMode = false
@@ -19,30 +19,25 @@ class TaskListsViewController: UIViewController, UITableViewDelegate, UITableVie
     @IBOutlet weak var taskListsTableView: UITableView!
     
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         readTasksAndUpdateUI()
     }
     
-    func readTasksAndUpdateUI(){
-        
-        lists = uiRealm.objects(TaskList)
+    func readTasksAndUpdateUI() {
+        lists = uiRealm.objects(TaskList.self)
         self.taskListsTableView.setEditing(false, animated: true)
         self.taskListsTableView.reloadData()
     }
     
-    // MARK: - User Actions -
-    
+    // MARK: - User Actions
     
     @IBAction func didSelectSortCriteria(sender: UISegmentedControl) {
-        
-        if sender.selectedSegmentIndex == 0{
-            
+        if sender.selectedSegmentIndex == 0 {
             // A-Z
-            self.lists = self.lists.sorted("name")
-        }
-        else{
+            self.lists = self.lists.sorted(byProperty: "name")
+        } else {
             // date
-            self.lists = self.lists.sorted("createdAt", ascending:false)
+            self.lists = self.lists.sorted(byProperty: "createdAt", ascending:false)
         }
         self.taskListsTableView.reloadData()
     }
@@ -53,37 +48,35 @@ class TaskListsViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     @IBAction func didClickOnAddButton(sender: UIBarButtonItem) {
-        
-        displayAlertToAddTaskList(nil)
+        displayAlertToAddTaskList(updatedList: nil)
     }
     
     //Enable the create action of the alert only if textfield text is not empty
     func listNameFieldDidChange(textField:UITextField){
-        self.currentCreateAction.enabled = textField.text?.characters.count > 0
+        self.currentCreateAction.isEnabled = (textField.text?.characters.count)! > 0
     }
     
-    func displayAlertToAddTaskList(updatedList:TaskList!){
-        
+    func displayAlertToAddTaskList(updatedList: TaskList!){
         var title = "New Tasks List"
         var doneTitle = "Create"
+        
         if updatedList != nil{
             title = "Update Tasks List"
             doneTitle = "Update"
         }
         
-        let alertController = UIAlertController(title: title, message: "Write the name of your tasks list.", preferredStyle: UIAlertControllerStyle.Alert)
-        let createAction = UIAlertAction(title: doneTitle, style: UIAlertActionStyle.Default) { (action) -> Void in
+        let alertController = UIAlertController(title: title, message: "Write the name of your tasks list.", preferredStyle: UIAlertControllerStyle.alert)
+        let createAction = UIAlertAction(title: doneTitle, style: UIAlertActionStyle.default) { (action) -> Void in
             
             let listName = alertController.textFields?.first?.text
             
             if updatedList != nil{
-                // update mode
+                // Update mode
                 try! uiRealm.write{
                     updatedList.name = listName!
                     self.readTasksAndUpdateUI()
                 }
-            }
-            else{
+            } else{
                 
                 let newTaskList = TaskList()
                 newTaskList.name = listName!
@@ -95,81 +88,73 @@ class TaskListsViewController: UIViewController, UITableViewDelegate, UITableVie
                 }
             }
             
-            print(listName)
+            print(listName!)
         }
         
         alertController.addAction(createAction)
-        createAction.enabled = false
+        createAction.isEnabled = false
         self.currentCreateAction = createAction
         
-        alertController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil))
         
-        alertController.addTextFieldWithConfigurationHandler { (textField) -> Void in
+        alertController.addTextField { (textField) -> Void in
             textField.placeholder = "Task List Name"
-            textField.addTarget(self, action: #selector(TaskListsViewController.listNameFieldDidChange(_:)), forControlEvents: UIControlEvents.EditingChanged)
+            textField.addTarget(self, action: #selector(self.listNameFieldDidChange), for: UIControlEvents.editingChanged)
             if updatedList != nil{
                 textField.text = updatedList.name
             }
         }
         
-        self.presentViewController(alertController, animated: true, completion: nil)
+        self.present(alertController, animated: true, completion: nil)
     }
     
-    // MARK: - UITableViewDataSource -
+    // MARK: - Navigation
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
-    {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let tasksViewController = segue.destination as! TasksViewController
+        tasksViewController.selectedList = sender as! TaskList
+    }
+    
+}
+
+// MARK: - UITableViewDataSource
+
+extension TaskListsViewController {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let listsTasks = lists{
             return listsTasks.count
         }
         return 0
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
-        
-        let cell = tableView.dequeueReusableCellWithIdentifier("listCell")
-        
+    func tableView(_ cellForRowAttableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
+        let cell = taskListsTableView.dequeueReusableCell(withIdentifier: "listCell")
         let list = lists[indexPath.row]
-        
         cell?.textLabel?.text = list.name
         cell?.detailTextLabel?.text = "\(list.tasks.count) Tasks"
         return cell!
     }
     
-    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Destructive, title: "Delete") { (deleteAction, indexPath) -> Void in
-            
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.destructive, title: "Delete") { (deleteAction, indexPath) -> Void in
             //Deletion will go here
-            
             let listToBeDeleted = self.lists[indexPath.row]
             try! uiRealm.write{
-                
                 uiRealm.delete(listToBeDeleted)
                 self.readTasksAndUpdateUI()
             }
         }
-        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Edit") { (editAction, indexPath) -> Void in
-            
+        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.normal, title: "Edit") { (editAction, indexPath) -> Void in
             // Editing will go here
             let listToBeUpdated = self.lists[indexPath.row]
-            self.displayAlertToAddTaskList(listToBeUpdated)
-            
+            self.displayAlertToAddTaskList(updatedList: listToBeUpdated)
         }
+        
         return [deleteAction, editAction]
     }
-
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        self.performSegueWithIdentifier("openTasks", sender: self.lists[indexPath.row])
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "navigateToTasksVC", sender: self.lists[indexPath.row])
     }
-    
-    // MARK: - Navigation
-    
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        
-        let tasksViewController = segue.destinationViewController as! TasksViewController
-        tasksViewController.selectedList = sender as! TaskList
-    }
-
 }
